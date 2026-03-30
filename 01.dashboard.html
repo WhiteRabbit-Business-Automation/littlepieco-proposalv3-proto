@@ -1,83 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPC Hub — Dashboard</title>
-<link rel="stylesheet" href="_base.css">
-<style>
-  .greeting { font-size: 15px; font-weight: 700; color: #1B5E20; margin-bottom: 14px; margin-top: 2px; }
-  .op-row { background: white; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); }
-  .op-row:hover { background: #FAFCFA; }
-  .op-left { display: flex; align-items: center; gap: 12px; }
-  .op-icon { font-size: 22px; width: 44px; height: 44px; background: #F0F4F0; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .op-title { font-size: 14px; font-weight: 700; color: #1A1A1A; }
-  .op-desc  { font-size: 12px; color: #A0A8A0; margin-top: 2px; }
-  .op-right { display: flex; align-items: center; gap: 8px; }
-  .alert-row { background: white; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03); border-left: 3px solid #F44336; cursor: pointer; text-decoration: none; color: inherit; }
-  .alert-row.low { border-left-color: #FF9800; }
-  .alert-name { font-size: 13px; font-weight: 600; color: #222; }
-  .alert-loc  { font-size: 11px; color: #BBB; margin-top: 2px; }
-  .alert-qty  { font-size: 15px; font-weight: 800; color: #C62828; }
-  .alert-qty.orange { color: #E65100; }
-  .empty-state { text-align: center; padding: 20px; color: #BBB; font-size: 13px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC Hub — Dashboard</title>
+  <link rel="stylesheet" href="./_base.css">
+  <style>
+    .greeting {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1B5E20;
+      margin-bottom: 14px;
+      margin-top: 2px;
+    }
+
+    .op-row {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+
+    .op-row:hover {
+      background: #FAFCFA;
+    }
+
+    .op-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .op-icon {
+      font-size: 22px;
+      width: 44px;
+      height: 44px;
+      background: #F0F4F0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .op-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A1A1A;
+    }
+
+    .op-desc {
+      font-size: 12px;
+      color: #A0A8A0;
+      margin-top: 2px;
+    }
+
+    .op-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-row {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
+      border-left: 3px solid #F44336;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .alert-row.low {
+      border-left-color: #FF9800;
+    }
+
+    .alert-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .alert-loc {
+      font-size: 11px;
+      color: #BBB;
+      margin-top: 2px;
+    }
+
+    .alert-qty {
+      font-size: 15px;
+      font-weight: 800;
+      color: #C62828;
+    }
+
+    .alert-qty.orange {
+      color: #E65100;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: #BBB;
+      font-size: 13px;
+    }
+  </style>
 </head>
+
 <body>
-<div class="topbar green">
-  <a class="topbar-back" href="index.html">‹ Modules</a>
-  <div class="topbar-center">
-    <div class="topbar-title">Dashboard</div>
+  <div class="topbar green">
+    <a class="topbar-back" href="index.html">‹ Modules</a>
+    <div class="topbar-center">
+      <div class="topbar-title">Dashboard</div>
+    </div>
+    <div class="topbar-right" id="topbar-date"></div>
   </div>
-  <div class="topbar-right" id="topbar-date"></div>
-</div>
 
-<div class="content">
-  <div class="greeting" id="greeting"></div>
+  <div class="content">
+    <div class="greeting" id="greeting"></div>
 
-  <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="kpi-grid" id="kpi-grid"></div>
 
-  <div class="section-label">Operations</div>
-  <div id="ops-list"></div>
+    <div class="section-label">Operations</div>
+    <div id="ops-list"></div>
 
-  <div class="section-label">Stock alerts</div>
-  <div id="alerts-list"></div>
-</div>
+    <div class="section-label">Stock alerts</div>
+    <div id="alerts-list"></div>
+  </div>
 
-<div class="bottomnav">
-  <a class="nav-item active" href="01.dashboard.html"><div class="nav-icon">⊞</div>Home</a>
-  <a class="nav-item" href="02.orders.html"><div class="nav-icon">📋</div>Orders</a>
-  <a class="nav-item" href="03.stock.html"><div class="nav-icon">🏭</div>Stock</a>
-  <a class="nav-item" href="05.operations.html"><div class="nav-icon">🚚</div>Ops</a>
-</div>
+  <div class="bottomnav">
+    <a class="nav-item active" href="01.dashboard.html">
+      <div class="nav-icon">⊞</div>Home
+    </a>
+    <a class="nav-item" href="02.orders.html">
+      <div class="nav-icon">📋</div>Orders
+    </a>
+    <a class="nav-item" href="03.stock.html">
+      <div class="nav-icon">🏭</div>Stock
+    </a>
+    <a class="nav-item" href="05.operations.html">
+      <div class="nav-icon">🚚</div>Ops
+    </a>
+  </div>
 
-<script src="_data.js"></script>
-<script>
-  const now = new Date();
-  document.getElementById('topbar-date').textContent =
-    now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-  document.getElementById('greeting').textContent =
-    (now.getHours() < 12 ? 'Good morning' : 'Good afternoon') + ', Raul 👋';
+  <script src="./_data.js"></script>
+  <script>
+    const now = new Date();
+    document.getElementById('topbar-date').textContent =
+      now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    document.getElementById('greeting').textContent =
+      (now.getHours() < 12 ? 'Good morning' : 'Good afternoon') + ', Raul 👋';
 
-  function render() {
-    const orders   = AppData.getOrders();
-    const products = AppData.getProducts();
-    const batches  = AppData.getBatches();
-    const ships    = AppData.getShipments();
-    const pullLists= AppData.getPullLists();
-    const alerts   = AppData.getStockAlerts();
+    function render() {
+      const orders = AppData.getOrders();
+      const products = AppData.getProducts();
+      const batches = AppData.getBatches();
+      const ships = AppData.getShipments();
+      const pullLists = AppData.getPullLists();
+      const alerts = AppData.getStockAlerts();
 
-    const pendingOrders = orders.filter(o => o.status === 'pending').length;
-    const pendingShips  = ships.filter(s => s.status === 'pending').length;
-    const pendingBatches= batches.filter(b => b.status === 'pending').length;
-    const pendingPulls  = pullLists.filter(p => p.status === 'pending').length;
-    const freezerVal    = AppData.getFreezerValue();
-    const critCount     = alerts.filter(a => a.level === 'critical').length;
-    const lowCount      = alerts.filter(a => a.level === 'low').length;
-    const alertCount    = critCount + lowCount;
+      const pendingOrders = orders.filter(o => o.status === 'pending').length;
+      const pendingShips = ships.filter(s => s.status === 'pending').length;
+      const pendingBatches = batches.filter(b => b.status === 'pending').length;
+      const pendingPulls = pullLists.filter(p => p.status === 'pending').length;
+      const freezerVal = AppData.getFreezerValue();
+      const critCount = alerts.filter(a => a.level === 'critical').length;
+      const lowCount = alerts.filter(a => a.level === 'low').length;
+      const alertCount = critCount + lowCount;
 
-    // KPI grid
-    document.getElementById('kpi-grid').innerHTML = `
+      // KPI grid
+      document.getElementById('kpi-grid').innerHTML = `
       <div class="kpi-card ok">
         <div class="kpi-num green">${pendingOrders}</div>
         <div class="kpi-label">Pending orders</div>
@@ -94,19 +197,19 @@
         <div class="kpi-sub">${critCount} critical · ${lowCount} low</div>
       </div>
       <div class="kpi-card neutral">
-        <div class="kpi-num slate">$${Math.round(freezerVal/1000)}k</div>
+        <div class="kpi-num slate">$${Math.round(freezerVal / 1000)}k</div>
         <div class="kpi-label">Freezer value</div>
         <div class="kpi-sub">NJ + NYC combined</div>
       </div>`;
 
-    // Ops list
-    const pl = pullLists.find(p => p.status === 'pending');
-    const ops = [
-      { href:'04.production.html', icon:'🥧', title:'Production Intake',    desc: pendingBatches > 0 ? `${pendingBatches} batch${pendingBatches>1?'es':''} pending confirmation` : 'No pending batches', chip: pendingBatches > 0 ? 'chip-orange' : 'chip-green', label: pendingBatches > 0 ? `${pendingBatches} pending` : 'All confirmed' },
-      { href:'05.operations.html', icon:'🚚', title:'NJ → NYC Pull List',    desc: pl ? `${pl.items.length} products · ${pl.items.reduce((s,i)=>s+i.qty,0)} units` : 'No active pull list', chip: pl ? 'chip-orange' : 'chip-green', label: pl ? 'Pending' : 'Done' },
-      { href:'05.operations.html', icon:'📦', title:'Goldbelly Shipments',   desc: `${pendingShips} order${pendingShips!==1?'s':''} · 0 shipped`, chip: pendingShips > 0 ? 'chip-orange' : 'chip-green', label: pendingShips > 0 ? `${pendingShips} pending` : 'All shipped' },
-    ];
-    document.getElementById('ops-list').innerHTML = ops.map(o => `
+      // Ops list
+      const pl = pullLists.find(p => p.status === 'pending');
+      const ops = [
+        { href: '04.production.html', icon: '🥧', title: 'Production Intake', desc: pendingBatches > 0 ? `${pendingBatches} batch${pendingBatches > 1 ? 'es' : ''} pending confirmation` : 'No pending batches', chip: pendingBatches > 0 ? 'chip-orange' : 'chip-green', label: pendingBatches > 0 ? `${pendingBatches} pending` : 'All confirmed' },
+        { href: '05.operations.html', icon: '🚚', title: 'NJ → NYC Pull List', desc: pl ? `${pl.items.length} products · ${pl.items.reduce((s, i) => s + i.qty, 0)} units` : 'No active pull list', chip: pl ? 'chip-orange' : 'chip-green', label: pl ? 'Pending' : 'Done' },
+        { href: '05.operations.html', icon: '📦', title: 'Goldbelly Shipments', desc: `${pendingShips} order${pendingShips !== 1 ? 's' : ''} · 0 shipped`, chip: pendingShips > 0 ? 'chip-orange' : 'chip-green', label: pendingShips > 0 ? `${pendingShips} pending` : 'All shipped' },
+      ];
+      document.getElementById('ops-list').innerHTML = ops.map(o => `
       <a class="op-row" href="${o.href}">
         <div class="op-left">
           <div class="op-icon">${o.icon}</div>
@@ -115,11 +218,11 @@
         <div class="op-right"><span class="chip ${o.chip}">${o.label}</span><span class="arrow">›</span></div>
       </a>`).join('');
 
-    // Alerts
-    if (alerts.length === 0) {
-      document.getElementById('alerts-list').innerHTML = '<div class="empty-state">✓ All products at healthy levels</div>';
-    } else {
-      document.getElementById('alerts-list').innerHTML = alerts.map(a => `
+      // Alerts
+      if (alerts.length === 0) {
+        document.getElementById('alerts-list').innerHTML = '<div class="empty-state">✓ All products at healthy levels</div>';
+      } else {
+        document.getElementById('alerts-list').innerHTML = alerts.map(a => `
         <a class="alert-row ${a.level}" href="03.stock.html">
           <div>
             <div class="alert-name">${a.name}</div>
@@ -127,10 +230,11 @@
           </div>
           <div class="alert-qty ${a.level === 'low' ? 'orange' : ''}">${a.njQty} left</div>
         </a>`).join('');
+      }
     }
-  }
 
-  render();
-</script>
+    render();
+  </script>
 </body>
+
 </html>

@@ -1,169 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPC Hub — Stock</title>
-<link rel="stylesheet" href="_base.css">
-<style>
-  .summary-strip { display: flex; gap: 10px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
-  .strip-card { background: white; border-radius: 12px; padding: 12px 16px; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); min-width: 100px; text-align: center; }
-  .strip-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-  .strip-num-green  { color: #1B5E20; }
-  .strip-num-red    { color: #C62828; }
-  .strip-num-orange { color: #E65100; }
-  .strip-num-slate  { color: #455A64; }
-  .strip-label { font-size: 11px; color: #999; margin-top: 3px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC Hub — Stock</title>
+  <link rel="stylesheet" href="./_base.css">
+  <style>
+    .summary-strip {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
 
-  /* Adjust modal */
-  .adj-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .adj-loc-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #DDE5DD; background: white; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; font-family: inherit; }
-  .adj-loc-btn.active { border-color: #1B5E20; background: #F0F7F0; color: #1B5E20; }
-  .adj-sign-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .adj-sign-btn { padding: 10px; border-radius: 10px; border: 2px solid #DDE5DD; background: white; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; font-family: inherit; }
-  .adj-sign-btn.active-add  { border-color: #2E7D32; background: #E8F5E9; color: #2E7D32; }
-  .adj-sign-btn.active-sub  { border-color: #C62828; background: #FFEBEE; color: #C62828; }
-  .adj-note { width: 100%; border: 1.5px solid #DDE5DD; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; resize: none; height: 64px; }
-  .adj-note:focus { border-color: #2E7D32; }
+    .strip-card {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 16px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+      min-width: 100px;
+      text-align: center;
+    }
 
-  /* History in modal */
-  .modal-locs { display: flex; gap: 10px; padding: 0 0 14px; }
-  .modal-loc { flex: 1; background: #F8F9F8; border-radius: 10px; padding: 10px 12px; }
-  .modal-loc-label { font-size: 10px; color: #BBB; font-weight: 700; text-transform: uppercase; }
-  .modal-loc-qty { font-size: 22px; font-weight: 800; color: #1B5E20; margin-top: 2px; }
-  .modal-loc-target { font-size: 11px; color: #CCC; }
-  .history-label { font-size: 11px; font-weight: 700; color: #C0C8C0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .strip-num {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
 
-  /* Ledger event detail */
-  .ledger-item { position: relative; }
-  .ledger-info-btn { position: absolute; top: 50%; right: 0; transform: translateY(-50%); background: none; border: none; font-size: 15px; color: #C0C8C0; cursor: pointer; padding: 4px 6px; font-family: inherit; line-height: 1; }
-  .ledger-info-btn:hover { color: #2E7D32; }
-  .ledger-detail { background: #F5F7F5; border-radius: 8px; padding: 10px 12px; margin: -2px 0 8px; font-size: 12px; display: none; }
-  .ledger-detail.open { display: block; }
-  .ledger-detail-row { display: flex; justify-content: space-between; padding: 3px 0; color: #666; border-bottom: 1px solid #EEF0EE; }
-  .ledger-detail-row:last-child { border-bottom: none; }
-  .ledger-detail-key { color: #AAA; }
-</style>
+    .strip-num-green {
+      color: #1B5E20;
+    }
+
+    .strip-num-red {
+      color: #C62828;
+    }
+
+    .strip-num-orange {
+      color: #E65100;
+    }
+
+    .strip-num-slate {
+      color: #455A64;
+    }
+
+    .strip-label {
+      font-size: 11px;
+      color: #999;
+      margin-top: 3px;
+    }
+
+    /* Adjust modal */
+    .adj-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .adj-loc-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid #DDE5DD;
+      background: white;
+      font-size: 13px;
+      font-weight: 700;
+      color: #888;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .adj-loc-btn.active {
+      border-color: #1B5E20;
+      background: #F0F7F0;
+      color: #1B5E20;
+    }
+
+    .adj-sign-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .adj-sign-btn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid #DDE5DD;
+      background: white;
+      font-size: 13px;
+      font-weight: 700;
+      color: #888;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .adj-sign-btn.active-add {
+      border-color: #2E7D32;
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .adj-sign-btn.active-sub {
+      border-color: #C62828;
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .adj-note {
+      width: 100%;
+      border: 1.5px solid #DDE5DD;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      height: 64px;
+    }
+
+    .adj-note:focus {
+      border-color: #2E7D32;
+    }
+
+    /* History in modal */
+    .modal-locs {
+      display: flex;
+      gap: 10px;
+      padding: 0 0 14px;
+    }
+
+    .modal-loc {
+      flex: 1;
+      background: #F8F9F8;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .modal-loc-label {
+      font-size: 10px;
+      color: #BBB;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .modal-loc-qty {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1B5E20;
+      margin-top: 2px;
+    }
+
+    .modal-loc-target {
+      font-size: 11px;
+      color: #CCC;
+    }
+
+    .history-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #C0C8C0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    /* Ledger event detail */
+    .ledger-item {
+      position: relative;
+    }
+
+    .ledger-info-btn {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 15px;
+      color: #C0C8C0;
+      cursor: pointer;
+      padding: 4px 6px;
+      font-family: inherit;
+      line-height: 1;
+    }
+
+    .ledger-info-btn:hover {
+      color: #2E7D32;
+    }
+
+    .ledger-detail {
+      background: #F5F7F5;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: -2px 0 8px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .ledger-detail.open {
+      display: block;
+    }
+
+    .ledger-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      color: #666;
+      border-bottom: 1px solid #EEF0EE;
+    }
+
+    .ledger-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .ledger-detail-key {
+      color: #AAA;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="topbar green">
-  <a class="topbar-back" href="01.dashboard.html">‹ Home</a>
-  <div class="topbar-center">
-    <div class="topbar-title">Stock</div>
-    <div class="topbar-sub">NJ Freezer + NYC Store</div>
-  </div>
-  <div class="topbar-right" id="topbar-time"></div>
-</div>
-
-<div class="content">
-  <div class="summary-strip" id="summary-strip"></div>
-
-  <div class="tabs">
-    <button type="button" class="tab active" onclick="filterStock('all',this)">All</button>
-    <button type="button" class="tab" onclick="filterStock('alerts',this)">Alerts</button>
-    <button type="button" class="tab" onclick="filterStock('pies',this)">Pies</button>
-  </div>
-
-  <div class="section-label">Products</div>
-  <div id="stock-list"></div>
-</div>
-
-<!-- Product History + Adjust Modal -->
-<div class="modal-overlay" id="prod-modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title" id="pm-name"></div>
-      <div class="modal-sub" id="pm-sub"></div>
+  <div class="topbar green">
+    <a class="topbar-back" href="01.dashboard.html">‹ Home</a>
+    <div class="topbar-center">
+      <div class="topbar-title">Stock</div>
+      <div class="topbar-sub">NJ Freezer + NYC Store</div>
     </div>
-    <div class="modal-body">
-      <div class="modal-locs">
-        <div class="modal-loc">
-          <div class="modal-loc-label">🏭 NJ Freezer</div>
-          <div class="modal-loc-qty" id="pm-nj-qty"></div>
-          <div class="modal-loc-target" id="pm-nj-target"></div>
-        </div>
-        <div class="modal-loc">
-          <div class="modal-loc-label">🏪 NYC Store</div>
-          <div class="modal-loc-qty" id="pm-nyc-qty"></div>
-          <div class="modal-loc-target" id="pm-nyc-target"></div>
-        </div>
-      </div>
+    <div class="topbar-right" id="topbar-time"></div>
+  </div>
 
-      <div class="card" style="margin-bottom:14px">
-        <div class="card-title">Adjust Stock</div>
-        <div class="adj-row">
-          <button type="button" class="adj-loc-btn active" id="adj-nj"  onclick="selectLoc('nj')">🏭 NJ Freezer</button>
-          <button type="button" class="adj-loc-btn"        id="adj-nyc" onclick="selectLoc('nyc')">🏪 NYC Store</button>
-        </div>
-        <div class="adj-sign-row">
-          <button type="button" class="adj-sign-btn active-add" id="adj-add" onclick="selectSign(1)">＋ Add stock</button>
-          <button type="button" class="adj-sign-btn"             id="adj-sub" onclick="selectSign(-1)">− Remove stock</button>
-        </div>
-        <div class="stepper" style="margin-bottom:12px">
-          <button type="button" class="step-btn" onclick="adjStep(-10)" aria-label="Decrease by 10">−</button>
-          <input class="step-input" type="number" id="adj-qty" value="0" min="0" title="Adjustment quantity" aria-label="Adjustment quantity" />
-          <button type="button" class="step-btn" onclick="adjStep(10)" aria-label="Increase by 10">+</button>
-        </div>
-        <div class="form-row">
-          <label for="adj-reason">Reason</label>
-          <textarea class="adj-note" id="adj-reason" placeholder="e.g. Manual correction, damaged, found in freezer..."></textarea>
-        </div>
-        <button type="button" class="btn btn-primary" onclick="submitAdj()">Apply Adjustment</button>
-      </div>
+  <div class="content">
+    <div class="summary-strip" id="summary-strip"></div>
 
-      <div class="history-label">Movement history</div>
-      <div id="pm-history"></div>
+    <div class="tabs">
+      <button type="button" class="tab active" onclick="filterStock('all',this)">All</button>
+      <button type="button" class="tab" onclick="filterStock('alerts',this)">Alerts</button>
+      <button type="button" class="tab" onclick="filterStock('pies',this)">Pies</button>
+    </div>
+
+    <div class="section-label">Products</div>
+    <div id="stock-list"></div>
+  </div>
+
+  <!-- Product History + Adjust Modal -->
+  <div class="modal-overlay" id="prod-modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="pm-name"></div>
+        <div class="modal-sub" id="pm-sub"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-locs">
+          <div class="modal-loc">
+            <div class="modal-loc-label">🏭 NJ Freezer</div>
+            <div class="modal-loc-qty" id="pm-nj-qty"></div>
+            <div class="modal-loc-target" id="pm-nj-target"></div>
+          </div>
+          <div class="modal-loc">
+            <div class="modal-loc-label">🏪 NYC Store</div>
+            <div class="modal-loc-qty" id="pm-nyc-qty"></div>
+            <div class="modal-loc-target" id="pm-nyc-target"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title">Adjust Stock</div>
+          <div class="adj-row">
+            <button type="button" class="adj-loc-btn active" id="adj-nj" onclick="selectLoc('nj')">🏭 NJ
+              Freezer</button>
+            <button type="button" class="adj-loc-btn" id="adj-nyc" onclick="selectLoc('nyc')">🏪 NYC Store</button>
+          </div>
+          <div class="adj-sign-row">
+            <button type="button" class="adj-sign-btn active-add" id="adj-add" onclick="selectSign(1)">＋ Add
+              stock</button>
+            <button type="button" class="adj-sign-btn" id="adj-sub" onclick="selectSign(-1)">− Remove stock</button>
+          </div>
+          <div class="stepper" style="margin-bottom:12px">
+            <button type="button" class="step-btn" onclick="adjStep(-10)" aria-label="Decrease by 10">−</button>
+            <input class="step-input" type="number" id="adj-qty" value="0" min="0" title="Adjustment quantity"
+              aria-label="Adjustment quantity" />
+            <button type="button" class="step-btn" onclick="adjStep(10)" aria-label="Increase by 10">+</button>
+          </div>
+          <div class="form-row">
+            <label for="adj-reason">Reason</label>
+            <textarea class="adj-note" id="adj-reason"
+              placeholder="e.g. Manual correction, damaged, found in freezer..."></textarea>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="submitAdj()">Apply Adjustment</button>
+        </div>
+
+        <div class="history-label">Movement history</div>
+        <div id="pm-history"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="bottomnav">
-  <a class="nav-item" href="01.dashboard.html"><div class="nav-icon">⊞</div>Home</a>
-  <a class="nav-item" href="02.orders.html"><div class="nav-icon">📋</div>Orders</a>
-  <a class="nav-item active" href="03.stock.html"><div class="nav-icon">🏭</div>Stock</a>
-  <a class="nav-item" href="05.operations.html"><div class="nav-icon">🚚</div>Ops</a>
-</div>
+  <div class="bottomnav">
+    <a class="nav-item" href="01.dashboard.html">
+      <div class="nav-icon">⊞</div>Home
+    </a>
+    <a class="nav-item" href="02.orders.html">
+      <div class="nav-icon">📋</div>Orders
+    </a>
+    <a class="nav-item active" href="03.stock.html">
+      <div class="nav-icon">🏭</div>Stock
+    </a>
+    <a class="nav-item" href="05.operations.html">
+      <div class="nav-icon">🚚</div>Ops
+    </a>
+  </div>
 
-<script src="_data.js"></script>
-<script>
-  document.getElementById('topbar-time').textContent =
-    new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  <script src="./_data.js"></script>
+  <script>
+    document.getElementById('topbar-time').textContent =
+      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  let currentFilter = 'all';
-  let activeProductId = null;
-  let adjLoc = 'nj';
-  let adjSign = 1;
+    let currentFilter = 'all';
+    let activeProductId = null;
+    let adjLoc = 'nj';
+    let adjSign = 1;
 
-  function renderSummary() {
-    const prods = AppData.getProducts();
-    const alerts = AppData.getStockAlerts();
-    const crit  = alerts.filter(a => a.level === 'critical').length;
-    const low   = alerts.filter(a => a.level === 'low').length;
-    const val   = AppData.getFreezerValue();
-    document.getElementById('summary-strip').innerHTML = `
-      <div class="strip-card"><div class="strip-num strip-num-slate">$${Math.round(val/1000)}k</div><div class="strip-label">Freezer value</div></div>
+    function renderSummary() {
+      const prods = AppData.getProducts();
+      const alerts = AppData.getStockAlerts();
+      const crit = alerts.filter(a => a.level === 'critical').length;
+      const low = alerts.filter(a => a.level === 'low').length;
+      const val = AppData.getFreezerValue();
+      document.getElementById('summary-strip').innerHTML = `
+      <div class="strip-card"><div class="strip-num strip-num-slate">$${Math.round(val / 1000)}k</div><div class="strip-label">Freezer value</div></div>
       <div class="strip-card"><div class="strip-num strip-num-red">${crit}</div><div class="strip-label">Critical</div></div>
       <div class="strip-card"><div class="strip-num strip-num-orange">${low}</div><div class="strip-label">Low</div></div>
       <div class="strip-card"><div class="strip-num strip-num-green">${prods.length - crit - low}</div><div class="strip-label">OK</div></div>`;
-  }
+    }
 
-  function renderList() {
-    let prods = AppData.getProducts();
-    const alerts = AppData.getStockAlerts();
-    const alertIds = new Set(alerts.map(a => a.id));
-    if (currentFilter === 'alerts') prods = prods.filter(p => alertIds.has(p.id));
-    else if (currentFilter === 'pies') prods = prods.filter(p => p.cat === 'pies');
+    function renderList() {
+      let prods = AppData.getProducts();
+      const alerts = AppData.getStockAlerts();
+      const alertIds = new Set(alerts.map(a => a.id));
+      if (currentFilter === 'alerts') prods = prods.filter(p => alertIds.has(p.id));
+      else if (currentFilter === 'pies') prods = prods.filter(p => p.cat === 'pies');
 
-    document.getElementById('stock-list').innerHTML = prods.map(p => {
-      const st = stockStatus(p.njQty, p.target_nj);
-      const pct = Math.min(100, Math.round(p.njQty / p.target_nj * 100));
-      const pctNyc = Math.min(100, Math.round(p.nycQty / p.target_nyc * 100));
-      return `<div class="stock-row ${st}" onclick="openModal('${p.id}')">
+      document.getElementById('stock-list').innerHTML = prods.map(p => {
+        const st = stockStatus(p.njQty, p.target_nj);
+        const pct = Math.min(100, Math.round(p.njQty / p.target_nj * 100));
+        const pctNyc = Math.min(100, Math.round(p.nycQty / p.target_nyc * 100));
+        return `<div class="stock-row ${st}" onclick="openModal('${p.id}')">
         <div class="stock-row-top">
           <div class="stock-row-name">${p.name}</div>
-          <span class="chip chip-${st === 'ok' ? 'green' : st === 'low' ? 'orange' : 'red'}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
+          <span class="chip chip-${st === 'ok' ? 'green' : st === 'low' ? 'orange' : 'red'}">${st.charAt(0).toUpperCase() + st.slice(1)}</span>
         </div>
         <div class="loc-grid">
           <div class="loc-block">
@@ -176,47 +368,47 @@
             <div class="loc-label">🏪 NYC Store</div>
             <div class="loc-qty">${p.nycQty}</div>
             <div class="loc-target">target: ${p.target_nyc}</div>
-            <div class="bar-wrap"><div class="bar bar-${stockStatus(p.nycQty,p.target_nyc)}" style="width:${pctNyc}%"></div></div>
+            <div class="bar-wrap"><div class="bar bar-${stockStatus(p.nycQty, p.target_nyc)}" style="width:${pctNyc}%"></div></div>
           </div>
         </div>
       </div>`;
-    }).join('');
-  }
+      }).join('');
+    }
 
-  function filterStock(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    renderList();
-  }
+    function filterStock(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderList();
+    }
 
-  function openModal(productId) {
-    activeProductId = productId;
-    adjLoc = 'nj'; adjSign = 1;
-    document.getElementById('adj-qty').value = 0;
-    document.getElementById('adj-reason').value = '';
-    document.getElementById('adj-nj').classList.add('active');
-    document.getElementById('adj-nyc').classList.remove('active');
-    document.getElementById('adj-add').classList.add('active-add');
-    document.getElementById('adj-sub').classList.remove('active-sub');
-    refreshModal();
-    document.getElementById('prod-modal').classList.add('open');
-  }
+    function openModal(productId) {
+      activeProductId = productId;
+      adjLoc = 'nj'; adjSign = 1;
+      document.getElementById('adj-qty').value = 0;
+      document.getElementById('adj-reason').value = '';
+      document.getElementById('adj-nj').classList.add('active');
+      document.getElementById('adj-nyc').classList.remove('active');
+      document.getElementById('adj-add').classList.add('active-add');
+      document.getElementById('adj-sub').classList.remove('active-sub');
+      refreshModal();
+      document.getElementById('prod-modal').classList.add('open');
+    }
 
-  function refreshModal() {
-    const p = AppData.getProduct(activeProductId);
-    if (!p) return;
-    document.getElementById('pm-name').textContent = p.name;
-    document.getElementById('pm-sub').textContent  = 'Cost: $' + p.cost.toFixed(2) + ' · Category: ' + p.cat;
-    document.getElementById('pm-nj-qty').textContent    = p.njQty;
-    document.getElementById('pm-nj-target').textContent = 'target: ' + p.target_nj;
-    document.getElementById('pm-nyc-qty').textContent   = p.nycQty;
-    document.getElementById('pm-nyc-target').textContent= 'target: ' + p.target_nyc;
+    function refreshModal() {
+      const p = AppData.getProduct(activeProductId);
+      if (!p) return;
+      document.getElementById('pm-name').textContent = p.name;
+      document.getElementById('pm-sub').textContent = 'Cost: $' + p.cost.toFixed(2) + ' · Category: ' + p.cat;
+      document.getElementById('pm-nj-qty').textContent = p.njQty;
+      document.getElementById('pm-nj-target').textContent = 'target: ' + p.target_nj;
+      document.getElementById('pm-nyc-qty').textContent = p.nycQty;
+      document.getElementById('pm-nyc-target').textContent = 'target: ' + p.target_nyc;
 
-    const ledger = AppData.getLedger(activeProductId).slice(0, 8);
-    document.getElementById('pm-history').innerHTML = ledger.length === 0
-      ? '<div style="color:#BBB;font-size:13px;padding:8px 0">No movements yet</div>'
-      : ledger.map(l => {
+      const ledger = AppData.getLedger(activeProductId).slice(0, 8);
+      document.getElementById('pm-history').innerHTML = ledger.length === 0
+        ? '<div style="color:#BBB;font-size:13px;padding:8px 0">No movements yet</div>'
+        : ledger.map(l => {
           const hasRef = l.ref && l.ref !== 'ADJ';
           return `
         <div class="ledger-item" style="padding-right:${hasRef ? '28px' : '0'}">
@@ -230,124 +422,125 @@
         </div>
         <div class="ledger-detail" id="ld-${l.id}"></div>`;
         }).join('');
-  }
-
-  function toggleLedgerDetail(ledgerId, ref) {
-    const el = document.getElementById('ld-' + ledgerId);
-    if (!el) return;
-    if (el.classList.contains('open')) { el.classList.remove('open'); return; }
-    el.innerHTML = buildLedgerDetail(ref);
-    el.classList.add('open');
-  }
-
-  function buildLedgerDetail(ref) {
-    const row = (k, v) => `<div class="ledger-detail-row"><span class="ledger-detail-key">${k}</span><span>${v}</span></div>`;
-    if (!ref || ref === '—') return row('Note', 'No reference data');
-
-    if (ref.startsWith('BATCH')) {
-      const b = AppData.getBatches().find(x => x.id === ref);
-      if (!b) return row('Ref', ref);
-      return [
-        row('Batch ID', b.id),
-        row('Logged by', b.logged_by),
-        row('Expected', b.expected_qty + ' units'),
-        row('Actual', b.actual_qty != null ? b.actual_qty + ' units' : '—'),
-        row('Confirmed by', b.confirmed_by || '—'),
-        b.note ? row('Note', b.note) : '',
-      ].join('');
     }
 
-    if (ref.startsWith('WS-') || ref.startsWith('CT-') || ref.startsWith('CU-')) {
-      const o = AppData.getOrder(ref);
-      if (!o) return row('Ref', ref);
-      const lines = o.items.map(i => i.name + ' ×' + i.qty).join(', ');
-      const total = o.items.reduce((s, i) => s + i.qty * i.price, 0);
-      return [
-        row('Order ID', o.id),
-        row('Customer', o.customer),
-        row('Type', o.type),
-        row('Status', o.status),
-        row('Due date', fmtDate(o.fulfill_date)),
-        row('Items', lines),
-        row('Total', fmtMoney(total)),
-        o.notes ? row('Notes', o.notes) : '',
-      ].join('');
+    function toggleLedgerDetail(ledgerId, ref) {
+      const el = document.getElementById('ld-' + ledgerId);
+      if (!el) return;
+      if (el.classList.contains('open')) { el.classList.remove('open'); return; }
+      el.innerHTML = buildLedgerDetail(ref);
+      el.classList.add('open');
     }
 
-    if (ref.startsWith('GB-') || ref.includes('SHIP')) {
-      const s = AppData.getShipments().find(x => x.id === ref);
-      if (!s) return row('Ref', ref);
-      const lines = s.items.map(i => i.name + ' ×' + i.qty).join(', ');
-      return [
-        row('Shipment ID', s.id),
-        row('Customer', s.customer),
-        row('Ship to', s.address),
-        row('Ship date', fmtDate(s.ship_date)),
-        row('Status', s.status),
-        row('Items', lines),
-        s.shipped_at ? row('Shipped at', fmtTime(s.shipped_at) || fmtDate(s.shipped_at)) : '',
-      ].join('');
+    function buildLedgerDetail(ref) {
+      const row = (k, v) => `<div class="ledger-detail-row"><span class="ledger-detail-key">${k}</span><span>${v}</span></div>`;
+      if (!ref || ref === '—') return row('Note', 'No reference data');
+
+      if (ref.startsWith('BATCH')) {
+        const b = AppData.getBatches().find(x => x.id === ref);
+        if (!b) return row('Ref', ref);
+        return [
+          row('Batch ID', b.id),
+          row('Logged by', b.logged_by),
+          row('Expected', b.expected_qty + ' units'),
+          row('Actual', b.actual_qty != null ? b.actual_qty + ' units' : '—'),
+          row('Confirmed by', b.confirmed_by || '—'),
+          b.note ? row('Note', b.note) : '',
+        ].join('');
+      }
+
+      if (ref.startsWith('WS-') || ref.startsWith('CT-') || ref.startsWith('CU-')) {
+        const o = AppData.getOrder(ref);
+        if (!o) return row('Ref', ref);
+        const lines = o.items.map(i => i.name + ' ×' + i.qty).join(', ');
+        const total = o.items.reduce((s, i) => s + i.qty * i.price, 0);
+        return [
+          row('Order ID', o.id),
+          row('Customer', o.customer),
+          row('Type', o.type),
+          row('Status', o.status),
+          row('Due date', fmtDate(o.fulfill_date)),
+          row('Items', lines),
+          row('Total', fmtMoney(total)),
+          o.notes ? row('Notes', o.notes) : '',
+        ].join('');
+      }
+
+      if (ref.startsWith('GB-') || ref.includes('SHIP')) {
+        const s = AppData.getShipments().find(x => x.id === ref);
+        if (!s) return row('Ref', ref);
+        const lines = s.items.map(i => i.name + ' ×' + i.qty).join(', ');
+        return [
+          row('Shipment ID', s.id),
+          row('Customer', s.customer),
+          row('Ship to', s.address),
+          row('Ship date', fmtDate(s.ship_date)),
+          row('Status', s.status),
+          row('Items', lines),
+          s.shipped_at ? row('Shipped at', fmtTime(s.shipped_at) || fmtDate(s.shipped_at)) : '',
+        ].join('');
+      }
+
+      if (ref.startsWith('PL-')) {
+        const lists = AppData.getPullLists();
+        const pl = lists.find(x => x.id === ref);
+        if (!pl) return row('Ref', ref);
+        const totalUnits = pl.items.reduce((s, i) => s + i.qty, 0);
+        return [
+          row('Pull list', pl.id),
+          row('For date', fmtDate(pl.date)),
+          row('Status', pl.status),
+          row('Products', pl.items.length + ' products'),
+          row('Total units', totalUnits + ' transferred NJ→NYC'),
+        ].join('');
+      }
+
+      return row('Ref', ref);
     }
 
-    if (ref.startsWith('PL-')) {
-      const lists = AppData.getPullLists();
-      const pl = lists.find(x => x.id === ref);
-      if (!pl) return row('Ref', ref);
-      const totalUnits = pl.items.reduce((s, i) => s + i.qty, 0);
-      return [
-        row('Pull list', pl.id),
-        row('For date', fmtDate(pl.date)),
-        row('Status', pl.status),
-        row('Products', pl.items.length + ' products'),
-        row('Total units', totalUnits + ' transferred NJ→NYC'),
-      ].join('');
+    function closeModal() {
+      document.getElementById('prod-modal').classList.remove('open');
+      activeProductId = null;
     }
 
-    return row('Ref', ref);
-  }
+    function selectLoc(loc) {
+      adjLoc = loc;
+      document.getElementById('adj-nj').classList.toggle('active', loc === 'nj');
+      document.getElementById('adj-nyc').classList.toggle('active', loc === 'nyc');
+    }
 
-  function closeModal() {
-    document.getElementById('prod-modal').classList.remove('open');
-    activeProductId = null;
-  }
+    function selectSign(s) {
+      adjSign = s;
+      document.getElementById('adj-add').classList.toggle('active-add', s === 1);
+      document.getElementById('adj-sub').classList.toggle('active-sub', s === -1);
+      document.getElementById('adj-add').classList.toggle('active-sub', false);
+      document.getElementById('adj-sub').classList.toggle('active-add', false);
+    }
 
-  function selectLoc(loc) {
-    adjLoc = loc;
-    document.getElementById('adj-nj').classList.toggle('active', loc === 'nj');
-    document.getElementById('adj-nyc').classList.toggle('active', loc === 'nyc');
-  }
+    function adjStep(delta) {
+      const el = document.getElementById('adj-qty');
+      el.value = Math.max(0, parseInt(el.value || 0) + delta);
+    }
 
-  function selectSign(s) {
-    adjSign = s;
-    document.getElementById('adj-add').classList.toggle('active-add', s === 1);
-    document.getElementById('adj-sub').classList.toggle('active-sub', s === -1);
-    document.getElementById('adj-add').classList.toggle('active-sub', false);
-    document.getElementById('adj-sub').classList.toggle('active-add', false);
-  }
+    function submitAdj() {
+      const qty = parseInt(document.getElementById('adj-qty').value) || 0;
+      const reason = document.getElementById('adj-reason').value.trim();
+      if (qty <= 0) { alert('Enter a quantity greater than 0.'); return; }
+      if (!reason) { alert('Enter a reason for the adjustment.'); return; }
+      const delta = adjSign * qty;
+      if (adjLoc === 'nj') AppData.adjustStock(activeProductId, delta, 0, 'Manual: ' + reason, 'ADJ');
+      else AppData.adjustStock(activeProductId, 0, delta, 'Manual: ' + reason, 'ADJ');
+      showToast((delta > 0 ? '+ ' : '') + delta + ' applied to ' + (adjLoc === 'nj' ? 'NJ Freezer' : 'NYC Store'));
+      document.getElementById('adj-qty').value = 0;
+      document.getElementById('adj-reason').value = '';
+      renderSummary();
+      renderList();
+      refreshModal();
+    }
 
-  function adjStep(delta) {
-    const el = document.getElementById('adj-qty');
-    el.value = Math.max(0, parseInt(el.value || 0) + delta);
-  }
-
-  function submitAdj() {
-    const qty    = parseInt(document.getElementById('adj-qty').value) || 0;
-    const reason = document.getElementById('adj-reason').value.trim();
-    if (qty <= 0) { alert('Enter a quantity greater than 0.'); return; }
-    if (!reason)  { alert('Enter a reason for the adjustment.'); return; }
-    const delta = adjSign * qty;
-    if (adjLoc === 'nj')  AppData.adjustStock(activeProductId, delta, 0, 'Manual: ' + reason, 'ADJ');
-    else                   AppData.adjustStock(activeProductId, 0, delta, 'Manual: ' + reason, 'ADJ');
-    showToast((delta > 0 ? '+ ' : '') + delta + ' applied to ' + (adjLoc === 'nj' ? 'NJ Freezer' : 'NYC Store'));
-    document.getElementById('adj-qty').value = 0;
-    document.getElementById('adj-reason').value = '';
     renderSummary();
     renderList();
-    refreshModal();
-  }
-
-  renderSummary();
-  renderList();
-</script>
+  </script>
 </body>
+
 </html>

@@ -1,120 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPC Hub</title>
-<link rel="stylesheet" href="_base.css">
-<style>
-  .hero { background: #1B5E20; color: white; padding: 36px 24px 28px; text-align: center; }
-  .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; margin-bottom: 8px; }
-  .hero-title { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; }
-  .hero-sub { font-size: 14px; opacity: 0.65; margin-top: 6px; }
-  .stage-badge { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 99px; font-size: 12px; font-weight: 600; padding: 5px 16px; margin-top: 14px; }
-  .reset-btn { display: inline-block; margin-top: 10px; font-size: 11px; color: rgba(255,255,255,0.4); cursor: pointer; border: none; background: none; font-family: inherit; text-decoration: underline; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC Hub</title>
+  <link rel="stylesheet" href="./_base.css">
+  <style>
+    .hero {
+      background: #1B5E20;
+      color: white;
+      padding: 36px 24px 28px;
+      text-align: center;
+    }
 
-  .modules { padding: 20px 16px 40px; max-width: 480px; margin: 0 auto; }
-  .module-card { background: white; border-radius: 16px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); text-decoration: none; color: inherit; display: block; transition: transform 0.15s; }
-  .module-card:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.11); }
-  .module-top { height: 6px; }
-  .module-top.green  { background: linear-gradient(90deg, #1B5E20, #43A047); }
-  .module-top.blue   { background: linear-gradient(90deg, #1565C0, #42A5F5); }
-  .module-top.teal   { background: linear-gradient(90deg, #00695C, #26A69A); }
-  .module-top.amber  { background: linear-gradient(90deg, #E65100, #FFA726); }
-  .module-body { padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
-  .module-icon { font-size: 28px; width: 52px; height: 52px; border-radius: 14px; background: #F0F4F0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .module-info { flex: 1; }
-  .module-name { font-size: 16px; font-weight: 800; color: #1A1A1A; }
-  .module-desc { font-size: 13px; color: #999; margin-top: 3px; line-height: 1.35; }
-  .module-stat { font-size: 13px; font-weight: 700; text-align: right; flex-shrink: 0; }
-  .stat-green  { color: #2E7D32; }
-  .stat-orange { color: #E65100; }
-  .stat-red    { color: #C62828; }
-  .stat-grey   { color: #BBB; }
-</style>
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      opacity: 0.5;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      opacity: 0.65;
+      margin-top: 6px;
+    }
+
+    .stage-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 16px;
+      margin-top: 14px;
+    }
+
+    .reset-btn {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      text-decoration: underline;
+    }
+
+    .modules {
+      padding: 20px 16px 40px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .module-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform 0.15s;
+    }
+
+    .module-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.11);
+    }
+
+    .module-top {
+      height: 6px;
+    }
+
+    .module-top.green {
+      background: linear-gradient(90deg, #1B5E20, #43A047);
+    }
+
+    .module-top.blue {
+      background: linear-gradient(90deg, #1565C0, #42A5F5);
+    }
+
+    .module-top.teal {
+      background: linear-gradient(90deg, #00695C, #26A69A);
+    }
+
+    .module-top.amber {
+      background: linear-gradient(90deg, #E65100, #FFA726);
+    }
+
+    .module-body {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .module-icon {
+      font-size: 28px;
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #F0F4F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .module-info {
+      flex: 1;
+    }
+
+    .module-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1A1A1A;
+    }
+
+    .module-desc {
+      font-size: 13px;
+      color: #999;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    .module-stat {
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .stat-green {
+      color: #2E7D32;
+    }
+
+    .stat-orange {
+      color: #E65100;
+    }
+
+    .stat-red {
+      color: #C62828;
+    }
+
+    .stat-grey {
+      color: #BBB;
+    }
+  </style>
 </head>
+
 <body>
-<div class="hero">
-  <div class="hero-eyebrow">Little Pie Company</div>
-  <div class="hero-title">LPC Hub</div>
-  <div class="hero-sub">Stage 1 — Custom Foundation</div>
-  <div class="stage-badge">Orders · Stock · Production · Ops</div>
-  <br>
-  <button type="button" class="reset-btn" onclick="if(confirm('Reset all demo data?')) AppData.reset()">↺ Reset demo data</button>
-</div>
+  <div class="hero">
+    <div class="hero-eyebrow">Little Pie Company</div>
+    <div class="hero-title">LPC Hub</div>
+    <div class="hero-sub">Stage 1 — Custom Foundation</div>
+    <div class="stage-badge">Orders · Stock · Production · Ops</div>
+    <br>
+    <button type="button" class="reset-btn" onclick="if(confirm('Reset all demo data?')) AppData.reset()">↺ Reset demo
+      data</button>
+  </div>
 
-<div class="modules">
-  <a class="module-card" href="01.dashboard.html">
-    <div class="module-top green"></div>
-    <div class="module-body">
-      <div class="module-icon">⊞</div>
-      <div class="module-info">
-        <div class="module-name">Dashboard</div>
-        <div class="module-desc">Live numbers across all modules. Morning overview.</div>
+  <div class="modules">
+    <a class="module-card" href="01.dashboard.html">
+      <div class="module-top green"></div>
+      <div class="module-body">
+        <div class="module-icon">⊞</div>
+        <div class="module-info">
+          <div class="module-name">Dashboard</div>
+          <div class="module-desc">Live numbers across all modules. Morning overview.</div>
+        </div>
+        <div class="module-stat stat-green" id="stat-dash">—</div>
       </div>
-      <div class="module-stat stat-green" id="stat-dash">—</div>
-    </div>
-  </a>
+    </a>
 
-  <a class="module-card" href="02.orders.html">
-    <div class="module-top blue"></div>
-    <div class="module-body">
-      <div class="module-icon">📋</div>
-      <div class="module-info">
-        <div class="module-name">Orders</div>
-        <div class="module-desc">Wholesale, catering, and custom orders. Create, view, fulfill.</div>
+    <a class="module-card" href="02.orders.html">
+      <div class="module-top blue"></div>
+      <div class="module-body">
+        <div class="module-icon">📋</div>
+        <div class="module-info">
+          <div class="module-name">Orders</div>
+          <div class="module-desc">Wholesale, catering, and custom orders. Create, view, fulfill.</div>
+        </div>
+        <div class="module-stat stat-orange" id="stat-orders">—</div>
       </div>
-      <div class="module-stat stat-orange" id="stat-orders">—</div>
-    </div>
-  </a>
+    </a>
 
-  <a class="module-card" href="03.stock.html">
-    <div class="module-top green"></div>
-    <div class="module-body">
-      <div class="module-icon">🏭</div>
-      <div class="module-info">
-        <div class="module-name">Stock</div>
-        <div class="module-desc">Live inventory across NJ + NYC. Full movement history per product.</div>
+    <a class="module-card" href="03.stock.html">
+      <div class="module-top green"></div>
+      <div class="module-body">
+        <div class="module-icon">🏭</div>
+        <div class="module-info">
+          <div class="module-name">Stock</div>
+          <div class="module-desc">Live inventory across NJ + NYC. Full movement history per product.</div>
+        </div>
+        <div class="module-stat" id="stat-stock">—</div>
       </div>
-      <div class="module-stat" id="stat-stock">—</div>
-    </div>
-  </a>
+    </a>
 
-  <a class="module-card" href="04.production.html">
-    <div class="module-top amber"></div>
-    <div class="module-body">
-      <div class="module-icon">🥧</div>
-      <div class="module-info">
-        <div class="module-name">Production</div>
-        <div class="module-desc">Batch intake records. Nicholas logs, Raul confirms. Stock updates on confirm.</div>
+    <a class="module-card" href="04.production.html">
+      <div class="module-top amber"></div>
+      <div class="module-body">
+        <div class="module-icon">🥧</div>
+        <div class="module-info">
+          <div class="module-name">Production</div>
+          <div class="module-desc">Batch intake records. Nicholas logs, Raul confirms. Stock updates on confirm.</div>
+        </div>
+        <div class="module-stat stat-orange" id="stat-prod">—</div>
       </div>
-      <div class="module-stat stat-orange" id="stat-prod">—</div>
-    </div>
-  </a>
+    </a>
 
-  <a class="module-card" href="05.operations.html">
-    <div class="module-top teal"></div>
-    <div class="module-body">
-      <div class="module-icon">🚚</div>
-      <div class="module-info">
-        <div class="module-name">Operations</div>
-        <div class="module-desc">Pull list, Goldbelly shipments, wholesale fulfillment. All in one place.</div>
+    <a class="module-card" href="05.operations.html">
+      <div class="module-top teal"></div>
+      <div class="module-body">
+        <div class="module-icon">🚚</div>
+        <div class="module-info">
+          <div class="module-name">Operations</div>
+          <div class="module-desc">Pull list, Goldbelly shipments, wholesale fulfillment. All in one place.</div>
+        </div>
+        <div class="module-stat stat-orange" id="stat-ops">—</div>
       </div>
-      <div class="module-stat stat-orange" id="stat-ops">—</div>
-    </div>
-  </a>
-</div>
+    </a>
+  </div>
 
-<script src="_data.js"></script>
-<script>
-  document.getElementById('stat-dash').textContent    = '↗';
-  document.getElementById('stat-orders').textContent  = AppData.getPendingCount() + ' pending';
-  const alerts = AppData.getStockAlerts();
-  const crit = alerts.filter(a => a.level === 'critical').length;
-  document.getElementById('stat-stock').textContent   = crit > 0 ? crit + ' critical' : 'All OK';
-  document.getElementById('stat-stock').className     = 'module-stat ' + (crit > 0 ? 'stat-red' : 'stat-green');
-  document.getElementById('stat-prod').textContent    = AppData.getPendingBatchCount() + ' to confirm';
-  document.getElementById('stat-ops').textContent     = AppData.getPendingShipCount() + ' pending';
-</script>
+  <script src="./_data.js"></script>
+  <script>
+    document.getElementById('stat-dash').textContent = '↗';
+    document.getElementById('stat-orders').textContent = AppData.getPendingCount() + ' pending';
+    const alerts = AppData.getStockAlerts();
+    const crit = alerts.filter(a => a.level === 'critical').length;
+    document.getElementById('stat-stock').textContent = crit > 0 ? crit + ' critical' : 'All OK';
+    document.getElementById('stat-stock').className = 'module-stat ' + (crit > 0 ? 'stat-red' : 'stat-green');
+    document.getElementById('stat-prod').textContent = AppData.getPendingBatchCount() + ' to confirm';
+    document.getElementById('stat-ops').textContent = AppData.getPendingShipCount() + ' pending';
+  </script>
 </body>
+
 </html>
