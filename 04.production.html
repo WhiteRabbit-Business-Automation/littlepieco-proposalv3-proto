@@ -210,6 +210,11 @@
       color: #999;
       margin-top: 3px;
     }
+
+    @media (min-width: 720px) {
+      #pending-list, #history-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      #pending-list .batch-card, #history-list .batch-card { margin-bottom: 0; }
+    }
   </style>
 </head>
 

@@ -253,6 +253,11 @@
     .dm-notes-wrap {
       display: none;
     }
+
+    @media (min-width: 720px) {
+      #orders-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      #orders-list .list-row { margin-bottom: 0; }
+    }
   </style>
 </head>
 

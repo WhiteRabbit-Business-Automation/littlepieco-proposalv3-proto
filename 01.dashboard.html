@@ -115,6 +115,11 @@
       color: #BBB;
       font-size: 13px;
     }
+
+    @media (min-width: 720px) {
+      #ops-list, #alerts-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      #ops-list .op-row, #alerts-list .alert-row { margin-bottom: 0; }
+    }
   </style>
 </head>
 

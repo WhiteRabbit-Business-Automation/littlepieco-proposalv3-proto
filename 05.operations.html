@@ -317,6 +317,11 @@
       margin-bottom: 14px;
       display: block;
     }
+
+    @media (min-width: 720px) {
+      #gb-list, #ws-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      #gb-list .ship-card, #ws-list .fulfill-card { margin-bottom: 0; }
+    }
   </style>
 </head>
 
