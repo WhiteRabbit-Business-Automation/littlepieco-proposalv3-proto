@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPC Hub — Operations</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  /* Pull list history card */
+  .batch-card { background: white; border-radius: 14px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); }
+  .batch-card-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+  .batch-name { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .batch-meta { font-size: 11px; color: #BBB; margin-top: 3px; }
+  .history-label { font-size: 11px; font-weight: 700; color: #C0C8C0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  /* Pull list rows */
+  .pick-row { background: white; border-radius: 12px; padding: 13px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03); }
+  .pick-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #DDE5DD; background: white; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .pick-check.checked { background: #2E7D32; border-color: #2E7D32; color: white; }
+  .pick-info { flex: 1; min-width: 0; }
+  .pick-name { font-size: 13px; font-weight: 700; color: #1A1A1A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pick-locs { font-size: 11px; color: #BBB; margin-top: 2px; }
+  .pick-qty { font-size: 18px; font-weight: 800; color: #1B5E20; flex-shrink: 0; }
+
+  /* Shipment cards */
+  .ship-card { background: white; border-radius: 14px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); }
+  .ship-card-top { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 8px; }
+  .ship-customer { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .ship-id { font-size: 11px; color: #BBB; margin-top: 2px; }
+  .ship-items { padding: 0 16px; }
+  .ship-item { font-size: 12px; color: #666; padding: 3px 0; border-top: 1px solid #F5F5F5; display: flex; justify-content: space-between; }
+  .ship-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 14px; }
+  .ship-addr { font-size: 12px; color: #AAA; }
+  .ship-shipped-at { font-size: 11px; color: #BBB; }
+
+  /* Ops summary strip */
+  .ops-strip { display: flex; gap: 10px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 2px; }
+  .ops-strip-card { background: white; border-radius: 12px; padding: 10px 14px; flex-shrink: 0; min-width: 90px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); }
+  .ops-strip-num { font-size: 20px; font-weight: 800; }
+  .ops-strip-label { font-size: 10px; color: #999; margin-top: 2px; }
+
+  /* Pull complete bar */
+  .pull-complete-bar { background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: space-between; }
+  .pull-complete-label { font-size: 13px; color: #888; }
+  .pull-done-state { text-align: center; padding: 24px; color: #BBB; font-size: 14px; }
+
+  /* Wholesale fulfillment rows */
+  .fulfill-card { background: white; border-radius: 14px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); overflow: hidden; }
+  .fulfill-top { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 8px; }
+  .fulfill-customer { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .fulfill-meta { font-size: 11px; color: #BBB; margin-top: 2px; }
+  .fulfill-items { padding: 0 16px; }
+  .fulfill-item { font-size: 12px; color: #666; padding: 4px 0; border-top: 1px solid #F5F5F5; display: flex; justify-content: space-between; }
+  .fulfill-footer { padding: 10px 16px 14px; }
+
+  /* Add shipment drawer form */
+  .add-ship-item-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .add-ship-item-row select { flex: 1; padding: 9px 12px; border-radius: 9px; border: 1.5px solid #DDE5DD; font-size: 13px; font-family: inherit; outline: none; }
+  .add-ship-item-row input { width: 56px; padding: 9px 10px; border-radius: 9px; border: 1.5px solid #DDE5DD; font-size: 13px; font-family: inherit; outline: none; text-align: center; }
+  .add-ship-item-row select:focus, .add-ship-item-row input:focus { border-color: #2E7D32; }
+  .add-ship-remove { color: #C62828; font-size: 18px; cursor: pointer; flex-shrink: 0; background: none; border: none; font-family: inherit; padding: 0 4px; }
+  .add-item-link { font-size: 13px; color: #2E7D32; font-weight: 700; cursor: pointer; background: none; border: none; font-family: inherit; padding: 4px 0; margin-bottom: 14px; display: block; }
+</style>
+</head>
+<body>
+
+<div class="topbar teal">
+  <a class="topbar-back" href="01.dashboard.html">‹ Home</a>
+  <div class="topbar-center">
+    <div class="topbar-title">Operations</div>
+    <div class="topbar-sub">Pull List · Shipments · Wholesale</div>
+  </div>
+  <div class="topbar-right" id="topbar-time"></div>
+</div>
+
+<div class="content">
+  <div class="ops-strip" id="ops-strip"></div>
+
+  <div class="module-tabs">
+    <button type="button" class="module-tab active" onclick="switchTab('pull',this)">Pull List</button>
+    <button type="button" class="module-tab" onclick="switchTab('goldbelly',this)">Goldbelly</button>
+    <button type="button" class="module-tab" onclick="switchTab('wholesale',this)">Wholesale</button>
+  </div>
+
+  <!-- PULL LIST TAB -->
+  <div id="tab-pull">
+    <div id="pull-content"></div>
+  </div>
+
+  <!-- GOLDBELLY TAB -->
+  <div id="tab-goldbelly" style="display:none">
+    <div class="section-label">Today's orders</div>
+    <div id="gb-list"></div>
+    <button type="button" class="btn btn-secondary" onclick="openAddShipDrawer()" style="width:100%;margin-top:4px">+ Add Goldbelly Order</button>
+  </div>
+
+  <!-- WHOLESALE TAB -->
+  <div id="tab-wholesale" style="display:none">
+    <div class="notice notice-blue">Wholesale orders fulfilled from the Orders module. Records with "fulfilled" status appear here for tracking.</div>
+    <div class="section-label">Pending fulfillment</div>
+    <div id="ws-list"></div>
+  </div>
+</div>
+
+<!-- Add Goldbelly Shipment Drawer -->
+<div class="drawer-overlay" id="add-ship-drawer" onclick="if(event.target===this)closeAddShipDrawer()">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">New Goldbelly Order</div>
+      <button type="button" class="drawer-close" onclick="closeAddShipDrawer()" aria-label="Close drawer" title="Close">✕</button>
+    </div>
+    <div class="form-row">
+      <label for="ship-customer">Customer name</label>
+      <input type="text" id="ship-customer" title="Customer name" aria-label="Customer name" placeholder="e.g. Sarah M." />
+    </div>
+    <div class="form-row">
+      <label for="ship-address">Ship to</label>
+      <input type="text" id="ship-address" title="Ship-to address" aria-label="Ship-to address" placeholder="e.g. Austin, TX" />
+    </div>
+    <div class="form-row">
+      <label for="ship-date">Ship date</label>
+      <input type="date" id="ship-date" title="Ship date" aria-label="Ship date" />
+    </div>
+    <div class="form-row">
+      <label>Items</label>
+      <div id="ship-items-list"></div>
+      <button type="button" class="add-item-link" onclick="addShipItemRow()">+ Add item</button>
+    </div>
+    <button type="button" class="btn btn-teal" onclick="submitAddShip()">Add Order</button>
+  </div>
+</div>
+
+<div class="bottomnav">
+  <a class="nav-item" href="01.dashboard.html"><div class="nav-icon">⊞</div>Home</a>
+  <a class="nav-item" href="02.orders.html"><div class="nav-icon">📋</div>Orders</a>
+  <a class="nav-item" href="03.stock.html"><div class="nav-icon">🏭</div>Stock</a>
+  <a class="nav-item active" href="05.operations.html"><div class="nav-icon">🚚</div>Ops</a>
+</div>
+
+<script src="_data.js"></script>
+<script>
+  document.getElementById('topbar-time').textContent =
+    new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+  let checkedItems = new Set();
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-pull').style.display      = tab === 'pull'      ? '' : 'none';
+    document.getElementById('tab-goldbelly').style.display = tab === 'goldbelly' ? '' : 'none';
+    document.getElementById('tab-wholesale').style.display = tab === 'wholesale' ? '' : 'none';
+  }
+
+  // ── Summary strip ──────────────────────────────────────────────────────────
+  function renderStrip() {
+    const ships    = AppData.getShipments();
+    const lists    = AppData.getPullLists();
+    const orders   = AppData.getOrders();
+    const gbPend   = ships.filter(s => s.type === 'goldbelly' && s.status === 'pending').length;
+    const plPend   = lists.filter(l => l.status === 'pending').length;
+    const wsPend   = orders.filter(o => o.type === 'wholesale' && o.status === 'pending').length;
+    document.getElementById('ops-strip').innerHTML = `
+      <div class="ops-strip-card">
+        <div class="ops-strip-num" style="color:${plPend > 0 ? '#E65100' : '#2E7D32'}">${plPend}</div>
+        <div class="ops-strip-label">Pull lists</div>
+      </div>
+      <div class="ops-strip-card">
+        <div class="ops-strip-num" style="color:${gbPend > 0 ? '#E65100' : '#2E7D32'}">${gbPend}</div>
+        <div class="ops-strip-label">GB pending</div>
+      </div>
+      <div class="ops-strip-card">
+        <div class="ops-strip-num" style="color:${wsPend > 0 ? '#E65100' : '#2E7D32'}">${wsPend}</div>
+        <div class="ops-strip-label">WS pending</div>
+      </div>`;
+  }
+
+  // ── Pull List ──────────────────────────────────────────────────────────────
+  function renderPull() {
+    const lists   = AppData.getPullLists();
+    const el      = document.getElementById('pull-content');
+    const pending  = lists.find(l => l.status === 'pending');
+    const completed = lists.filter(l => l.status === 'completed');
+
+    let html = '';
+
+    if (!pending) {
+      html += `<div class="pull-done-state">✓ Pull list complete for today<br><span style="font-size:12px">NJ → NYC transfer done</span></div>`;
+    } else {
+      const totalUnits = pending.items.reduce((s, i) => s + i.qty, 0);
+      html += `
+        <div class="pull-complete-bar">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1A1A1A">${pending.id}</div>
+            <div class="pull-complete-label">${pending.items.length} products · ${totalUnits} units · For ${fmtDate(pending.date)}</div>
+          </div>
+          <span class="chip chip-orange">Pending</span>
+        </div>
+        <div id="pick-rows">` +
+          pending.items.map(item => `
+            <div class="pick-row">
+              <div class="pick-check ${checkedItems.has(item.product_id) ? 'checked' : ''}"
+                   onclick="toggleCheck('${item.product_id}', this)"
+                   role="checkbox" aria-label="Check ${item.name}" tabindex="0">
+                ${checkedItems.has(item.product_id) ? '✓' : ''}
+              </div>
+              <div class="pick-info">
+                <div class="pick-name">${item.name}</div>
+                <div class="pick-locs">NJ: ${item.njQty} · NYC: ${item.nycQty} · sending ${item.qty}</div>
+              </div>
+              <div class="pick-qty">${item.qty}</div>
+            </div>`).join('') +
+        `</div>
+        <div id="pull-action" style="margin-top:12px"></div>`;
+    }
+
+    if (completed.length > 0) {
+      html += `<div class="history-label" style="margin-top:18px">Completed pull lists</div>`;
+      html += completed.map(pl => {
+        const total = pl.items.reduce((s, i) => s + i.qty, 0);
+        return `
+        <div class="batch-card" style="cursor:default">
+          <div class="batch-card-top">
+            <div>
+              <div class="batch-name">${pl.id}</div>
+              <div class="batch-meta">Completed · ${fmtDate(pl.date)} · ${pl.items.length} products · ${total} units</div>
+            </div>
+            <span class="chip chip-green">Done</span>
+          </div>
+          <div style="padding:0 16px 12px">
+            ${pl.items.map(i => `
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;padding:4px 0;border-top:1px solid #F5F5F5">
+                <span>${i.name}</span>
+                <span style="color:#00695C;font-weight:700">NJ→NYC ×${i.qty}</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    el.innerHTML = html;
+    if (pending) updatePullAction(pending);
+  }
+
+  function toggleCheck(productId, el) {
+    if (checkedItems.has(productId)) {
+      checkedItems.delete(productId);
+      el.classList.remove('checked');
+      el.textContent = '';
+    } else {
+      checkedItems.add(productId);
+      el.classList.add('checked');
+      el.textContent = '✓';
+    }
+    const lists = AppData.getPullLists();
+    const pending = lists.find(l => l.status === 'pending');
+    if (pending) updatePullAction(pending);
+  }
+
+  function updatePullAction(pending) {
+    const el = document.getElementById('pull-action');
+    if (!el) return;
+    const allChecked = pending.items.every(i => checkedItems.has(i.product_id));
+    if (allChecked) {
+      el.innerHTML = `<button type="button" class="btn btn-teal" onclick="completePull('${pending.id}')">Complete Pull List → Transfer to NYC</button>`;
+    } else {
+      el.innerHTML = `<div style="font-size:12px;color:#BBB;text-align:center;padding:8px 0">Check off each item after pulling it from the freezer</div>`;
+    }
+  }
+
+  function completePull(id) {
+    AppData.completePullList(id);
+    checkedItems.clear();
+    showToast('Pull list complete — NJ → NYC transfer recorded', '#00695C');
+    renderStrip();
+    renderPull();
+  }
+
+  // ── Goldbelly ──────────────────────────────────────────────────────────────
+  function renderGoldbelly() {
+    const ships = AppData.getShipments().filter(s => s.type === 'goldbelly');
+    const el = document.getElementById('gb-list');
+    if (ships.length === 0) {
+      el.innerHTML = '<div style="color:#BBB;font-size:13px;padding:16px 0;text-align:center">No Goldbelly orders</div>';
+      return;
+    }
+    el.innerHTML = ships.map(s => `
+      <div class="ship-card">
+        <div class="ship-card-top">
+          <div>
+            <div class="ship-customer">${s.customer}</div>
+            <div class="ship-id">${s.id} · Ship ${fmtDate(s.ship_date)}</div>
+          </div>
+          <span class="chip chip-${s.status === 'shipped' ? 'green' : 'orange'}">${s.status === 'shipped' ? 'Shipped' : 'Pending'}</span>
+        </div>
+        <div class="ship-items">
+          ${s.items.map(i => `<div class="ship-item"><span>${i.name}</span><span>×${i.qty}</span></div>`).join('')}
+        </div>
+        <div class="ship-footer">
+          <div class="ship-addr">📦 ${s.address}</div>
+          ${s.status === 'shipped'
+            ? `<div class="ship-shipped-at">Shipped ${fmtTime(s.shipped_at) || fmtDate(s.shipped_at)}</div>`
+            : `<button type="button" class="btn btn-teal" style="padding:7px 14px;font-size:12px" onclick="markShipped('${s.id}')">Mark Shipped</button>`}
+        </div>
+      </div>`).join('');
+  }
+
+  function markShipped(id) {
+    AppData.markShipped(id);
+    showToast('Marked as shipped — stock deducted', '#00695C');
+    renderStrip();
+    renderGoldbelly();
+  }
+
+  // ── Add Goldbelly shipment drawer ──────────────────────────────────────────
+  let shipItemCount = 0;
+
+  function openAddShipDrawer() {
+    shipItemCount = 0;
+    document.getElementById('ship-customer').value = '';
+    document.getElementById('ship-address').value  = '';
+    document.getElementById('ship-date').value     = new Date().toISOString().slice(0,10);
+    document.getElementById('ship-items-list').innerHTML = '';
+    addShipItemRow();
+    document.getElementById('add-ship-drawer').classList.add('open');
+  }
+
+  function closeAddShipDrawer() {
+    document.getElementById('add-ship-drawer').classList.remove('open');
+  }
+
+  function addShipItemRow() {
+    shipItemCount++;
+    const idx  = shipItemCount;
+    const prods = AppData.getProducts();
+    const row   = document.createElement('div');
+    row.className = 'add-ship-item-row';
+    row.id = 'ship-item-row-' + idx;
+    row.innerHTML = `
+      <select title="Product" aria-label="Product" id="ship-item-prod-${idx}">
+        ${prods.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+      </select>
+      <input type="number" value="1" min="1" title="Quantity" aria-label="Quantity" id="ship-item-qty-${idx}" />
+      <button type="button" class="add-ship-remove" onclick="removeShipRow(${idx})" aria-label="Remove item" title="Remove item">×</button>`;
+    document.getElementById('ship-items-list').appendChild(row);
+  }
+
+  function removeShipRow(idx) {
+    const row = document.getElementById('ship-item-row-' + idx);
+    if (row) row.remove();
+  }
+
+  function submitAddShip() {
+    const customer = document.getElementById('ship-customer').value.trim();
+    const address  = document.getElementById('ship-address').value.trim();
+    const shipDate = document.getElementById('ship-date').value;
+    if (!customer || !address || !shipDate) { alert('Fill in customer, address, and ship date.'); return; }
+
+    const items = [];
+    document.querySelectorAll('[id^="ship-item-prod-"]').forEach(sel => {
+      const idx = sel.id.replace('ship-item-prod-','');
+      const qtyEl = document.getElementById('ship-item-qty-' + idx);
+      if (!qtyEl) return;
+      const qty = parseInt(qtyEl.value) || 0;
+      if (qty <= 0) return;
+      const p = AppData.getProduct(sel.value);
+      if (p) items.push({ product_id: p.id, name: p.name, qty });
+    });
+    if (items.length === 0) { alert('Add at least one item.'); return; }
+
+    AppData.addShipment({ type:'goldbelly', customer, address, items, ship_date: shipDate });
+    showToast('Goldbelly order added', '#00695C');
+    closeAddShipDrawer();
+    renderStrip();
+    renderGoldbelly();
+  }
+
+  // ── Wholesale ──────────────────────────────────────────────────────────────
+  function renderWholesale() {
+    const orders = AppData.getOrders().filter(o => o.type === 'wholesale' && o.status === 'pending');
+    const el = document.getElementById('ws-list');
+    if (orders.length === 0) {
+      el.innerHTML = '<div style="color:#BBB;font-size:13px;padding:16px 0;text-align:center">✓ No wholesale orders pending</div>';
+      return;
+    }
+    el.innerHTML = orders.map(o => {
+      const total = o.items.reduce((s,i) => s + i.qty * i.price, 0);
+      return `
+      <div class="fulfill-card">
+        <div class="fulfill-top">
+          <div>
+            <div class="fulfill-customer">${o.customer}</div>
+            <div class="fulfill-meta">${o.id} · Due ${fmtDate(o.fulfill_date)}</div>
+          </div>
+          <span class="chip chip-orange">Pending</span>
+        </div>
+        <div class="fulfill-items">
+          ${o.items.map(i => `<div class="fulfill-item"><span>${i.name}</span><span>×${i.qty}</span></div>`).join('')}
+        </div>
+        <div class="fulfill-footer">
+          <div style="font-size:12px;color:#888;margin-bottom:8px">Total: <strong>${fmtMoney(total)}</strong></div>
+          <button type="button" class="btn btn-primary" onclick="fulfillOrder('${o.id}')">Mark Fulfilled & Deduct Stock</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function fulfillOrder(id) {
+    AppData.fulfillOrder(id);
+    showToast('Order fulfilled — stock deducted from NJ');
+    renderStrip();
+    renderWholesale();
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  renderStrip();
+  renderPull();
+  renderGoldbelly();
+  renderWholesale();
+</script>
+</body>
+</html>

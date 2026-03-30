@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPC Hub — Production</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  /* Batch list card */
+  .batch-card { background: white; border-radius: 14px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); cursor: pointer; }
+  .batch-card-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+  .batch-name { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .batch-meta { font-size: 11px; color: #BBB; margin-top: 3px; }
+  .batch-qty-row { display: flex; gap: 12px; padding: 0 16px 14px; }
+  .batch-qty-block { flex: 1; }
+  .batch-qty-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #CCC; margin-bottom: 2px; }
+  .batch-qty-val { font-size: 20px; font-weight: 800; color: #1B5E20; }
+  .batch-qty-val.pending { color: #BBB; }
+  .batch-note { font-size: 12px; color: #999; padding: 0 16px 12px; font-style: italic; }
+
+  /* Confirm modal */
+  .confirm-card { background: #F8F9F8; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+  .confirm-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .confirm-label { font-size: 12px; color: #999; }
+  .confirm-val { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .discrepancy-banner { background: #FFF3E0; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #E65100; font-weight: 600; margin-bottom: 12px; display: none; }
+
+  /* Log batch form */
+  .log-product-select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #DDE5DD; font-size: 14px; font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; background: white; margin-bottom: 14px; }
+  .log-product-select:focus { border-color: #2E7D32; }
+  .log-big-stepper { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .log-step-btn { width: 52px; height: 52px; border-radius: 50%; border: 2px solid #DDE5DD; background: white; font-size: 22px; font-weight: 700; color: #555; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .log-step-btn:active { background: #F0F7F0; }
+  .log-step-input { flex: 1; text-align: center; font-size: 40px; font-weight: 800; color: #1B5E20; border: none; outline: none; font-family: inherit; width: 0; }
+  .log-note { width: 100%; border: 1.5px solid #DDE5DD; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; resize: none; height: 64px; margin-bottom: 14px; }
+  .log-note:focus { border-color: #2E7D32; }
+
+  /* Summary strip */
+  .prod-strip { display: flex; gap: 10px; margin-bottom: 14px; }
+  .prod-strip-card { background: white; border-radius: 12px; padding: 12px 16px; flex: 1; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04); }
+  .prod-strip-num { font-size: 22px; font-weight: 800; }
+  .prod-strip-label { font-size: 11px; color: #999; margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar amber">
+  <a class="topbar-back" href="01.dashboard.html">‹ Home</a>
+  <div class="topbar-center">
+    <div class="topbar-title">Production</div>
+    <div class="topbar-sub">NJ Freezer Intake</div>
+  </div>
+  <div class="topbar-right" id="topbar-time"></div>
+</div>
+
+<div class="content">
+  <div class="prod-strip" id="prod-strip"></div>
+
+  <div class="module-tabs" id="module-tabs">
+    <button type="button" class="module-tab active" onclick="switchTab('confirm',this)">Confirm Batches</button>
+    <button type="button" class="module-tab" onclick="switchTab('log',this)">Log New Batch</button>
+    <button type="button" class="module-tab" onclick="switchTab('history',this)">History</button>
+  </div>
+
+  <!-- CONFIRM TAB -->
+  <div id="tab-confirm">
+    <div class="section-label">Pending confirmation</div>
+    <div id="pending-list"></div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="tab-log" style="display:none">
+    <div class="card">
+      <div class="card-title">Log Batch (Nicholas)</div>
+      <label class="form-label" for="log-product">Product</label>
+      <select class="log-product-select" id="log-product" title="Product" aria-label="Product"></select>
+      <label class="form-label" for="log-qty-input">Quantity baked</label>
+      <div class="log-big-stepper">
+        <button type="button" class="log-step-btn" onclick="logStep(-10)" aria-label="Decrease by 10">−</button>
+        <input class="log-step-input" type="number" id="log-qty-input" value="0" min="0" title="Quantity baked" aria-label="Quantity baked" />
+        <button type="button" class="log-step-btn" onclick="logStep(10)" aria-label="Increase by 10">+</button>
+      </div>
+      <label class="form-label" for="log-note-input">Note (optional)</label>
+      <textarea class="log-note" id="log-note-input" title="Batch note" aria-label="Batch note" placeholder="e.g. started late, oven #2 used..."></textarea>
+      <button type="button" class="btn btn-primary" onclick="submitLog()">Submit Batch →</button>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" style="display:none">
+    <div class="section-label">Confirmed batches</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- Confirm Batch Modal -->
+<div class="modal-overlay" id="confirm-modal" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="cm-name"></div>
+      <div class="modal-sub" id="cm-sub"></div>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-card">
+        <div class="confirm-row">
+          <div class="confirm-label">Logged by</div>
+          <div class="confirm-val" id="cm-logged-by"></div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-label">Expected qty</div>
+          <div class="confirm-val" id="cm-expected"></div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-label">Logged at</div>
+          <div class="confirm-val" id="cm-logged-at"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Raul — Confirm Count</div>
+        <label class="form-label" for="cm-actual">Actual count</label>
+        <div class="stepper" style="margin-bottom:12px">
+          <button type="button" class="step-btn" onclick="cmStep(-1)" aria-label="Decrease by 1">−</button>
+          <input class="step-input" type="number" id="cm-actual" value="0" min="0" title="Actual count" aria-label="Actual count" oninput="checkDiscrepancy()" />
+          <button type="button" class="step-btn" onclick="cmStep(1)" aria-label="Increase by 1">+</button>
+        </div>
+        <div class="discrepancy-banner" id="cm-discrepancy">⚠ Discrepancy detected — note required</div>
+        <div class="form-row">
+          <label for="cm-note">Note</label>
+          <textarea class="adj-note" id="cm-note" title="Confirmation note" aria-label="Confirmation note" placeholder="e.g. 5 broken aside, tray mis-count..."></textarea>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitConfirm()">Confirm & Add to Stock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottomnav">
+  <a class="nav-item" href="01.dashboard.html"><div class="nav-icon">⊞</div>Home</a>
+  <a class="nav-item" href="02.orders.html"><div class="nav-icon">📋</div>Orders</a>
+  <a class="nav-item" href="03.stock.html"><div class="nav-icon">🏭</div>Stock</a>
+  <a class="nav-item active" href="04.production.html"><div class="nav-icon">🥧</div>Prod</a>
+</div>
+
+<script src="_data.js"></script>
+<script>
+  document.getElementById('topbar-time').textContent =
+    new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+  let activeTab = 'confirm';
+  let activeBatchId = null;
+
+  function switchTab(tab, btn) {
+    activeTab = tab;
+    document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-confirm').style.display = tab === 'confirm' ? '' : 'none';
+    document.getElementById('tab-log').style.display     = tab === 'log'     ? '' : 'none';
+    document.getElementById('tab-history').style.display = tab === 'history' ? '' : 'none';
+    if (tab === 'log') populateProductSelect();
+  }
+
+  // ── Summary strip ──────────────────────────────────────────────────────────
+  function renderStrip() {
+    const batches = AppData.getBatches();
+    const pending   = batches.filter(b => b.status === 'pending').length;
+    const confirmed = batches.filter(b => b.status === 'confirmed').length;
+    const totalIn   = batches.filter(b => b.status === 'confirmed')
+                             .reduce((s, b) => s + (b.actual_qty || 0), 0);
+    document.getElementById('prod-strip').innerHTML = `
+      <div class="prod-strip-card">
+        <div class="prod-strip-num" style="color:#E65100">${pending}</div>
+        <div class="prod-strip-label">Pending</div>
+      </div>
+      <div class="prod-strip-card">
+        <div class="prod-strip-num" style="color:#1B5E20">${confirmed}</div>
+        <div class="prod-strip-label">Confirmed</div>
+      </div>
+      <div class="prod-strip-card">
+        <div class="prod-strip-num" style="color:#455A64">${totalIn}</div>
+        <div class="prod-strip-label">Units in today</div>
+      </div>`;
+  }
+
+  // ── Pending list ───────────────────────────────────────────────────────────
+  function renderPending() {
+    const batches = AppData.getBatches().filter(b => b.status === 'pending');
+    const el = document.getElementById('pending-list');
+    if (batches.length === 0) {
+      el.innerHTML = '<div style="color:#BBB;font-size:13px;padding:16px 0;text-align:center">✓ No batches waiting for confirmation</div>';
+      return;
+    }
+    el.innerHTML = batches.map(b => `
+      <div class="batch-card" onclick="openConfirmModal('${b.id}')">
+        <div class="batch-card-top">
+          <div>
+            <div class="batch-name">${b.product_name}</div>
+            <div class="batch-meta">Logged by ${b.logged_by} · ${fmtTime(b.logged_at) || fmtDate(b.logged_at)} · ${b.id}</div>
+          </div>
+          <span class="chip chip-orange">Pending</span>
+        </div>
+        <div class="batch-qty-row">
+          <div class="batch-qty-block">
+            <div class="batch-qty-label">Expected</div>
+            <div class="batch-qty-val">${b.expected_qty}</div>
+          </div>
+          <div class="batch-qty-block">
+            <div class="batch-qty-label">Confirmed</div>
+            <div class="batch-qty-val pending">—</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── History list ───────────────────────────────────────────────────────────
+  function renderHistory() {
+    const batches = AppData.getBatches().filter(b => b.status === 'confirmed');
+    const el = document.getElementById('history-list');
+    if (batches.length === 0) {
+      el.innerHTML = '<div style="color:#BBB;font-size:13px;padding:16px 0;text-align:center">No confirmed batches yet</div>';
+      return;
+    }
+    el.innerHTML = batches.map(b => {
+      const diff = b.actual_qty - b.expected_qty;
+      const diffStr = diff === 0 ? '' : (diff > 0 ? '+' + diff : '' + diff);
+      return `
+      <div class="batch-card">
+        <div class="batch-card-top">
+          <div>
+            <div class="batch-name">${b.product_name}</div>
+            <div class="batch-meta">Confirmed by ${b.confirmed_by} · ${fmtTime(b.confirmed_at) || fmtDate(b.confirmed_at)} · ${b.id}</div>
+          </div>
+          <span class="chip chip-green">Confirmed</span>
+        </div>
+        <div class="batch-qty-row">
+          <div class="batch-qty-block">
+            <div class="batch-qty-label">Expected</div>
+            <div class="batch-qty-val">${b.expected_qty}</div>
+          </div>
+          <div class="batch-qty-block">
+            <div class="batch-qty-label">Actual</div>
+            <div class="batch-qty-val">${b.actual_qty}${diffStr ? ' <span style="font-size:13px;color:' + (diff > 0 ? '#2E7D32' : '#C62828') + '">('+diffStr+')</span>' : ''}</div>
+          </div>
+        </div>
+        ${b.note ? `<div class="batch-note">${b.note}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ── Log Batch ──────────────────────────────────────────────────────────────
+  function populateProductSelect() {
+    const select = document.getElementById('log-product');
+    const products = AppData.getProducts();
+    select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  }
+
+  function logStep(delta) {
+    const el = document.getElementById('log-qty-input');
+    el.value = Math.max(0, parseInt(el.value || 0) + delta);
+  }
+
+  function submitLog() {
+    const pid  = document.getElementById('log-product').value;
+    const qty  = parseInt(document.getElementById('log-qty-input').value) || 0;
+    const note = document.getElementById('log-note-input').value.trim();
+    if (qty <= 0) { alert('Enter a quantity greater than 0.'); return; }
+    const p = AppData.getProduct(pid);
+    AppData.addBatch({
+      product_id:   pid,
+      product_name: p.name,
+      expected_qty: qty,
+      logged_by:    'Nicholas',
+      note:         note,
+    });
+    document.getElementById('log-qty-input').value = 0;
+    document.getElementById('log-note-input').value = '';
+    showToast('Batch logged — awaiting Raul\'s confirmation');
+    renderStrip();
+    renderPending();
+    // switch to confirm tab
+    const confirmBtn = document.querySelector('.module-tab');
+    switchTab('confirm', confirmBtn);
+  }
+
+  // ── Confirm Modal ──────────────────────────────────────────────────────────
+  function openConfirmModal(batchId) {
+    activeBatchId = batchId;
+    const b = AppData.getBatches().find(x => x.id === batchId);
+    if (!b) return;
+    document.getElementById('cm-name').textContent     = b.product_name;
+    document.getElementById('cm-sub').textContent      = 'Batch ID: ' + b.id;
+    document.getElementById('cm-logged-by').textContent = b.logged_by;
+    document.getElementById('cm-expected').textContent  = b.expected_qty + ' units';
+    document.getElementById('cm-logged-at').textContent = fmtTime(b.logged_at) || fmtDate(b.logged_at);
+    document.getElementById('cm-actual').value          = b.expected_qty;
+    document.getElementById('cm-note').value            = '';
+    document.getElementById('cm-discrepancy').style.display = 'none';
+    document.getElementById('confirm-modal').classList.add('open');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('open');
+    activeBatchId = null;
+  }
+
+  function cmStep(delta) {
+    const el = document.getElementById('cm-actual');
+    el.value = Math.max(0, parseInt(el.value || 0) + delta);
+    checkDiscrepancy();
+  }
+
+  function checkDiscrepancy() {
+    const b = AppData.getBatches().find(x => x.id === activeBatchId);
+    if (!b) return;
+    const actual   = parseInt(document.getElementById('cm-actual').value) || 0;
+    const hasDisc  = actual !== b.expected_qty;
+    document.getElementById('cm-discrepancy').style.display = hasDisc ? 'block' : 'none';
+  }
+
+  function submitConfirm() {
+    const actual = parseInt(document.getElementById('cm-actual').value) || 0;
+    const note   = document.getElementById('cm-note').value.trim();
+    if (actual <= 0) { alert('Enter the actual count.'); return; }
+    const b = AppData.getBatches().find(x => x.id === activeBatchId);
+    if (b && actual !== b.expected_qty && !note) {
+      alert('A note is required when the count differs from expected.');
+      return;
+    }
+    AppData.confirmBatch(activeBatchId, actual, note);
+    const diff = actual - (b ? b.expected_qty : 0);
+    showToast('+ ' + actual + ' units added to NJ Freezer' + (diff !== 0 ? ' (' + (diff > 0 ? '+' : '') + diff + ' vs expected)' : ''));
+    closeConfirmModal();
+    renderStrip();
+    renderPending();
+    renderHistory();
+  }
+
+  renderStrip();
+  renderPending();
+</script>
+</body>
+</html>

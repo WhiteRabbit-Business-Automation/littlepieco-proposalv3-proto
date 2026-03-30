@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC Hub — Orders</title>
+  <link rel="stylesheet" href="_base.css">
+  <style>
+    .order-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+    }
+
+    .order-card:hover {
+      background: #FAFCFA;
+    }
+
+    .order-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .order-customer {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A1A1A;
+    }
+
+    .order-id {
+      font-size: 11px;
+      color: #C0C8C0;
+      margin-top: 2px;
+    }
+
+    .order-meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .order-meta-item {
+      font-size: 12px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .order-items-text {
+      font-size: 12px;
+      color: #C0C8C0;
+      margin-top: 7px;
+      padding-top: 7px;
+      border-top: 1px solid #F5F5F5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Detail modal */
+    .detail-items {
+      border: 1px solid #EEF2EE;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 14px 0;
+    }
+
+    .detail-item-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #F5F5F5;
+      font-size: 13px;
+    }
+
+    .detail-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-item-name {
+      color: #333;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .detail-item-qty {
+      color: #999;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .detail-item-price {
+      color: #333;
+      font-weight: 700;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .detail-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 11px 14px;
+      background: #F8F9F8;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .detail-field {
+      margin-bottom: 10px;
+    }
+
+    .detail-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #C0C8C0;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 3px;
+    }
+
+    .detail-field-val {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* New order drawer */
+    .type-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .type-btn {
+      background: white;
+      border: 2px solid #DDE5DD;
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .type-btn.active {
+      border-color: #1B5E20;
+      background: #F0F7F0;
+    }
+
+    .type-btn-icon {
+      font-size: 22px;
+    }
+
+    .type-btn-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .type-btn.active .type-btn-label {
+      color: #1B5E20;
+    }
+
+    .line-item-row {
+      display: grid;
+      grid-template-columns: 1fr 62px 28px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .line-item-row select {
+      font-size: 13px;
+      padding: 10px 10px;
+    }
+
+    .line-item-row input {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 6px;
+    }
+
+    .remove-line-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: 1.5px solid #FFD0D0;
+      background: #FFF5F5;
+      color: #E53935;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+    }
+
+    .add-line-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1.5px dashed #A5D6A7;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2E7D32;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 2px;
+      font-family: inherit;
+    }
+
+    .line-header {
+      display: grid;
+      grid-template-columns: 1fr 62px 28px;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .line-header-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: #C0C8C0;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .dm-chips-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .dm-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .dm-notes-wrap {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar green">
+    <a class="topbar-back" href="01.dashboard.html">‹ Home</a>
+    <div class="topbar-center">
+      <div class="topbar-title">Orders</div>
+    </div>
+    <div class="topbar-right" id="count-badge"></div>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <button type="button" class="tab active" onclick="filterOrders('all',this)">All</button>
+      <button type="button" class="tab" onclick="filterOrders('pending',this)">Pending</button>
+      <button type="button" class="tab" onclick="filterOrders('wholesale',this)">Wholesale</button>
+      <button type="button" class="tab" onclick="filterOrders('catering',this)">Catering</button>
+      <button type="button" class="tab" onclick="filterOrders('custom',this)">Custom</button>
+    </div>
+    <div id="orders-list"></div>
+  </div>
+
+  <button type="button" class="fab fab-green" onclick="openDrawer()">+</button>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="detail-modal" onclick="if(event.target===this)closeDetail()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="dm-customer"></div>
+        <div class="modal-sub" id="dm-id"></div>
+      </div>
+      <div class="modal-body">
+        <div class="dm-chips-row" id="dm-chips"></div>
+        <div class="dm-meta-grid">
+          <div class="detail-field">
+            <div class="detail-field-label">Fulfill date</div>
+            <div class="detail-field-val" id="dm-date"></div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-label">Created</div>
+            <div class="detail-field-val" id="dm-created"></div>
+          </div>
+        </div>
+        <div class="detail-items" id="dm-items"></div>
+        <div class="detail-field dm-notes-wrap" id="dm-notes-wrap">
+          <div class="detail-field-label">Notes</div>
+          <div class="detail-field-val" id="dm-notes"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDetail()">Close</button>
+        <button type="button" class="btn btn-primary" id="dm-action-btn" title="Order action">Mark Fulfilled</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Order Drawer -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="new-order-drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title">New Order</div>
+      <button type="button" class="drawer-close" onclick="closeDrawer()" aria-label="Close drawer"
+        title="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="type-row">
+        <button type="button" class="type-btn active" onclick="selectType(this,'wholesale')">
+          <div class="type-btn-icon">🏪</div>
+          <div class="type-btn-label">Wholesale</div>
+        </button>
+        <button type="button" class="type-btn" onclick="selectType(this,'catering')">
+          <div class="type-btn-icon">🎉</div>
+          <div class="type-btn-label">Catering</div>
+        </button>
+        <button type="button" class="type-btn" onclick="selectType(this,'custom')">
+          <div class="type-btn-icon">✏️</div>
+          <div class="type-btn-label">Custom</div>
+        </button>
+      </div>
+
+      <div class="form-row">
+        <label>Customer name</label>
+        <input type="text" id="no-customer" placeholder="e.g. Zabar's Market" />
+      </div>
+      <div class="form-row">
+        <label>Fulfill date</label>
+        <input title="fulfill_date" type="date" id="no-date" />
+      </div>
+
+      <div class="form-row">
+        <label>Line items</label>
+        <div class="line-header">
+          <div class="line-header-lbl">Product</div>
+          <div class="line-header-lbl">Qty</div>
+          <div></div>
+        </div>
+        <div id="line-items-container">
+          <div class="line-item-row" id="li-0">
+            <select title="Product" aria-label="Product">
+              <option value="">Select product...</option>
+            </select>
+            <input type="number" value="1" min="1" title="Quantity" aria-label="Quantity" />
+            <button type="button" class="remove-line-btn" onclick="removeLine('li-0')" aria-label="Remove line"
+              title="Remove">×</button>
+          </div>
+        </div>
+        <button type="button" class="add-line-btn" onclick="addLine()">＋ Add product</button>
+      </div>
+
+      <div class="form-row">
+        <label>Notes (optional)</label>
+        <textarea id="no-notes" placeholder="Delivery instructions, special requests..."></textarea>
+      </div>
+
+      <button type="button" class="btn btn-primary" onclick="submitOrder()">Create Order</button>
+    </div>
+  </div>
+
+  <div class="bottomnav">
+    <a class="nav-item" href="01.dashboard.html">
+      <div class="nav-icon">⊞</div>Home
+    </a>
+    <a class="nav-item active" href="02.orders.html">
+      <div class="nav-icon">📋</div>Orders
+    </a>
+    <a class="nav-item" href="03.stock.html">
+      <div class="nav-icon">🏭</div>Stock
+    </a>
+    <a class="nav-item" href="05.operations.html">
+      <div class="nav-icon">🚚</div>Ops
+    </a>
+  </div>
+
+  <script src="_data.js"></script>
+  <script>
+    const PRODUCTS = AppData.getProducts();
+    let currentFilter = 'all';
+    let selectedType = 'wholesale';
+    let activeOrderId = null;
+
+    const TYPE_COLORS = { wholesale: 'chip-blue', catering: 'chip-purple', custom: 'chip-teal', pending: 'chip-orange', fulfilled: 'chip-green', confirmed: 'chip-blue', draft: 'chip-grey' };
+
+    function typeLabel(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+
+    function renderOrders() {
+      let orders = AppData.getOrders();
+      if (currentFilter === 'pending') orders = orders.filter(o => o.status === 'pending');
+      else if (currentFilter !== 'all') orders = orders.filter(o => o.type === currentFilter);
+
+      document.getElementById('count-badge').textContent = orders.length + ' orders';
+      document.getElementById('orders-list').innerHTML = orders.length === 0
+        ? '<div class="empty-state" style="text-align:center;padding:30px;color:#BBB;">No orders found</div>'
+        : orders.map(o => {
+          const total = o.items.reduce((s, i) => s + i.qty * i.price, 0);
+          const itemSummary = o.items.map(i => i.name.replace(' 10"', '').replace(' 5"', '') + ' ×' + i.qty).join(' · ');
+          return `<div class="order-card" onclick="openDetail('${o.id}')">
+            <div class="order-top">
+              <div><div class="order-customer">${o.customer}</div><div class="order-id">${o.id}</div></div>
+              <span class="chip ${TYPE_COLORS[o.status] || 'chip-grey'}">${typeLabel(o.status)}</span>
+            </div>
+            <div class="order-meta">
+              <div class="order-meta-item">📅 ${fmtDate(o.fulfill_date)}</div>
+              <div class="order-meta-item">📦 ${o.items.reduce((s, i) => s + i.qty, 0)} units</div>
+              <div class="order-meta-item">💰 ${fmtMoney(total)}</div>
+              <span class="chip ${TYPE_COLORS[o.type] || 'chip-grey'}" style="font-size:10px">${typeLabel(o.type)}</span>
+            </div>
+            <div class="order-items-text">${itemSummary}</div>
+          </div>`;
+        }).join('');
+    }
+
+    function filterOrders(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderOrders();
+    }
+
+    function openDetail(id) {
+      const o = AppData.getOrder(id);
+      if (!o) return;
+      activeOrderId = id;
+      const total = o.items.reduce((s, i) => s + i.qty * i.price, 0);
+      document.getElementById('dm-customer').textContent = o.customer;
+      document.getElementById('dm-id').textContent = o.id + ' · ' + typeLabel(o.type);
+      document.getElementById('dm-date').textContent = fmtDate(o.fulfill_date);
+      document.getElementById('dm-created').textContent = fmtDate(o.created_at);
+      document.getElementById('dm-chips').innerHTML =
+        `<span class="chip ${TYPE_COLORS[o.status]}">${typeLabel(o.status)}</span>
+       <span class="chip ${TYPE_COLORS[o.type]}">${typeLabel(o.type)}</span>`;
+      document.getElementById('dm-items').innerHTML =
+        o.items.map(i => `<div class="detail-item-row">
+        <div class="detail-item-name">${i.name}</div>
+        <div class="detail-item-qty">×${i.qty}</div>
+        <div class="detail-item-price">${fmtMoney(i.qty * i.price)}</div>
+      </div>`).join('') +
+        `<div class="detail-total-row"><div>Total · ${o.items.reduce((s, i) => s + i.qty, 0)} units</div><div>${fmtMoney(total)}</div></div>`;
+      const notesWrap = document.getElementById('dm-notes-wrap');
+      if (o.notes) { notesWrap.classList.remove('dm-notes-wrap'); document.getElementById('dm-notes').textContent = o.notes; }
+      else notesWrap.classList.add('dm-notes-wrap');
+      const btn = document.getElementById('dm-action-btn');
+      if (o.status === 'pending' || o.status === 'confirmed') {
+        btn.textContent = 'Mark Fulfilled → Deduct Stock';
+        btn.style.display = '';
+        btn.className = 'btn btn-primary';
+      } else {
+        btn.textContent = 'Fulfilled';
+        btn.style.display = '';
+        btn.className = 'btn btn-secondary';
+        btn.disabled = true;
+      }
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-modal').classList.remove('open');
+      activeOrderId = null;
+    }
+
+    document.getElementById('dm-action-btn').addEventListener('click', () => {
+      if (!activeOrderId) return;
+      const o = AppData.getOrder(activeOrderId);
+      if (o && o.status !== 'fulfilled') {
+        AppData.fulfillOrder(activeOrderId);
+        showToast('✓ Order fulfilled — stock deducted');
+        closeDetail();
+        renderOrders();
+      }
+    });
+
+    // ── New Order Drawer ──
+    function populateProductOptions(sel) {
+      sel.innerHTML = '<option value="">Select product...</option>' +
+        PRODUCTS.map(p => `<option value="${p.id}" data-name="${p.name}">${p.name} (NJ: ${p.njQty})</option>`).join('');
+    }
+
+    function openDrawer() {
+      // Set default date to 7 days from now
+      const d = new Date(); d.setDate(d.getDate() + 7);
+      document.getElementById('no-date').value = d.toISOString().slice(0, 10);
+      document.getElementById('no-customer').value = '';
+      document.getElementById('no-notes').value = '';
+      // Reset to one line item
+      const container = document.getElementById('line-items-container');
+      container.innerHTML = `<div class="line-item-row" id="li-0">
+      <select></select>
+      <input type="number" value="1" min="1" />
+      <button type="button" class="remove-line-btn" onclick="removeLine('li-0')">×</button>
+    </div>`;
+      populateProductOptions(container.querySelector('select'));
+      document.getElementById('new-order-drawer').classList.add('open');
+      document.getElementById('drawer-overlay').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('new-order-drawer').classList.remove('open');
+      document.getElementById('drawer-overlay').classList.remove('open');
+    }
+
+    function selectType(btn, type) {
+      selectedType = type;
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    let lineCount = 1;
+    function addLine() {
+      const id = 'li-' + lineCount++;
+      const row = document.createElement('div');
+      row.className = 'line-item-row'; row.id = id;
+      row.innerHTML = `<select title="Product" aria-label="Product"></select>
+      <input type="number" value="1" min="1" title="Quantity" aria-label="Quantity" />
+      <button type="button" class="remove-line-btn" onclick="removeLine('${id}')" aria-label="Remove line" title="Remove">×</button>`;
+      document.getElementById('line-items-container').appendChild(row);
+      populateProductOptions(row.querySelector('select'));
+    }
+
+    function removeLine(id) {
+      const rows = document.querySelectorAll('.line-item-row');
+      if (rows.length > 1) document.getElementById(id)?.remove();
+    }
+
+    function submitOrder() {
+      const customer = document.getElementById('no-customer').value.trim();
+      const date = document.getElementById('no-date').value;
+      const notes = document.getElementById('no-notes').value.trim();
+      if (!customer) { alert('Enter a customer name.'); return; }
+      if (!date) { alert('Select a fulfill date.'); return; }
+
+      const rows = document.querySelectorAll('.line-item-row');
+      const items = [];
+      for (const row of rows) {
+        const sel = row.querySelector('select');
+        const qty = parseInt(row.querySelector('input').value) || 0;
+        if (!sel.value || qty < 1) continue;
+        const p = PRODUCTS.find(x => x.id === sel.value);
+        if (p) items.push({ pid: p.id, name: p.name, qty, price: p.cost });
+      }
+      if (items.length === 0) { alert('Add at least one product.'); return; }
+
+      const order = AppData.addOrder({ customer, type: selectedType, fulfill_date: date, items, notes });
+      showToast('✓ Order ' + order.id + ' created');
+      closeDrawer();
+      renderOrders();
+    }
+
+    renderOrders();
+  </script>
+</body>
+
+</html>
